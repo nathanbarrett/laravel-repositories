@@ -5,15 +5,14 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/nathanbarrett/laravel-repositories/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/nathanbarrett/laravel-repositories/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/nathanbarrett/laravel-repositories.svg?style=flat-square)](https://packagist.org/packages/nathanbarrett/laravel-repositories)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+Repositories are meant to act as a middle layer between Models and higher level objectives like services. 
+They are meant to abstract the data layer and provide a clean API for data access.
+Use a repository when the action is mostly or entirely about the related model.
 
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-repositories.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-repositories)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+#### Layers of a Laravel application using Repositories
+- **Service** - Highest level of abstraction. Uses Repositories and Models to perform actions. Example: `StripePaymentService`
+- **Repository** - Middle layer of abstraction. Uses Models (not just the related Model) to perform actions. Example: `UserRepository`
+- **Model** - Lowest level of abstraction. Represents a single table in the database. Use only for relations and light transforms of the data. Example: `User`
 
 ## Installation
 
@@ -23,37 +22,50 @@ You can install the package via composer:
 composer require nathanbarrett/laravel-repositories
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="laravel-repositories-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="laravel-repositories-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laravel-repositories-views"
-```
-
 ## Usage
 
+First create a repository class
+
 ```php
-$laravelRepositories = new Nathan Barrett\LaravelRepositories();
-echo $laravelRepositories->echoPhrase('Hello, Nathan Barrett!');
+use NathanBarrett\LaravelRepositories\Repository;
+use App\Models\User;
+
+/**
+* @extends Repository<User>
+ */
+class UserRepository extends Repository
+{
+    public function modelClass(): string
+    {
+        return User::class;
+    }
+}
+```
+
+Generics are used to ensure that your IDE can provide code completion and type hinting.
+
+```php
+
+class UserController extends Controller
+{
+    public function __construct(private UserRepository $userRepository)
+    {
+       //
+    }
+
+    public function store(Request $request)
+    {
+        // The IDE will understand that $user is an instance of User
+        $user = $this->userRepository->create($request->all());
+        return response()->json($user);
+    }
+}
+```
+
+Or you can quickly create one using the command
+
+```bash
+php artisan make:repository UserRepository
 ```
 
 ## Testing
@@ -70,14 +82,6 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [Nathan Barrett](https://github.com/nathanbarrett)
-- [All Contributors](../../contributors)
 
 ## License
 
