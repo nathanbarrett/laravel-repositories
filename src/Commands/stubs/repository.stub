@@ -1,0 +1,17 @@
+<?php declare(strict_types=1);
+
+namespace {{namespace}};
+
+use NathanBarrett\LaravelRepositories\Repository;
+use {{modelFQDN}};
+
+/**
+ * @extends Repository<{{model}}>
+ */
+class {{repositoryBaseName}} extends Repository
+{
+    public function modelClass(): string
+    {
+        return {{model}}::class;
+    }
+}
