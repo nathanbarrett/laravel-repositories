@@ -38,7 +38,7 @@ abstract class Repository
      */
     public function firstOrCreate(array $attributes = [], array $values = [])
     {
-        return $this->modelQuery()->firstOrCreate($attributes);
+        return $this->modelQuery()->firstOrCreate($attributes, $values);
     }
 
     /**
